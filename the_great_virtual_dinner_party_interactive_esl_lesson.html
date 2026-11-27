@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Great Virtual Dinner Party — Interactive ESL Lesson</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: #fbf8f3;
+      color: #1e293b;
+    }
+    .tab-btn.active {
+      background-color: #1e293b;
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(30, 41, 59, 0.18);
+    }
+    .fade-in {
+      animation: fadeIn 0.25s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="bg-slate-900 text-white sticky top-0 z-30 shadow-md">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl" aria-hidden="true">🍽️</span>
+        <div>
+          <h1 class="text-base sm:text-lg font-bold tracking-tight leading-tight">The Great Virtual Dinner Party</h1>
+          <p class="text-xs text-amber-300 font-medium">Unit 4: Eat, Drink and Be Merry!</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 text-xs">
+        <span class="bg-slate-800 border border-slate-700 px-2.5 py-1 rounded-full text-slate-200 font-medium" id="progress-badge">Step 1 of 8</span>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="bg-white/95 backdrop-blur border-b border-amber-200/70 text-slate-700">
+      <div class="max-w-5xl mx-auto px-3 py-2 flex items-center gap-1.5 overflow-x-auto no-scrollbar" id="nav-tabs">
+        <button type="button" data-step="0" class="tab-btn active shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold transition hover:bg-amber-100">1. Scavenger Hunt</button>
+        <button type="button" data-step="1" class="tab-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold transition hover:bg-amber-100">2. On Your Table</button>
+        <button type="button" data-step="2" class="tab-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold transition hover:bg-amber-100">3. Supermarket</button>
+        <button type="button" data-step="3" class="tab-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold transition hover:bg-amber-100">4. Guest Mystery</button>
+        <button type="button" data-step="4" class="tab-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold transition hover:bg-amber-100">5. Menu Detective</button>
+        <button type="button" data-step="5" class="tab-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold transition hover:bg-amber-100">6. Grammar Rescue</button>
+        <button type="button" data-step="6" class="tab-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold transition hover:bg-amber-100">7. Role-Play</button>
+        <button type="button" data-step="7" class="tab-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold transition hover:bg-amber-100">8. Exit Quiz</button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1 max-w-5xl w-full mx-auto px-4 py-6 sm:py-8">
+
+    <!-- STEP 0: Scavenger Hunt -->
+    <section data-panel="0" class="panel fade-in space-y-6">
+      <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-amber-900 text-white rounded-2xl p-6 sm:p-8 shadow-lg">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <span class="inline-block bg-amber-500/20 border border-amber-400/40 text-amber-200 text-xs font-semibold px-3 py-1 rounded-full mb-3">60-SECOND CHALLENGE</span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">The Virtual Food Scavenger Hunt</h2>
+            <p class="text-slate-200 mt-2 text-sm sm:text-base max-w-xl">Look around your kitchen or room! Show an item on camera or type it in the chat before time runs out.</p>
+          </div>
+          <!-- Timer Widget -->
+          <div class="bg-slate-950/60 border border-white/15 rounded-2xl p-4 text-center min-w-[170px]">
+            <div class="text-xs uppercase tracking-wider text-amber-300 font-semibold">Timer</div>
+            <div id="hunt-timer" class="text-4xl font-extrabold tabular-nums my-1 text-white">01:00</div>
+            <div class="flex items-center justify-center gap-2 mt-2">
+              <button type="button" id="timer-start" class="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition">Start</button>
+              <button type="button" id="timer-reset" class="px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-semibold text-xs transition">Reset</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-amber-200/80 shadow-sm p-6">
+        <h3 class="text-lg font-bold text-slate-900 mb-4">Find &amp; Check Off Each Item:</h3>
+        <div class="grid sm:grid-cols-2 gap-3" id="scavenger-list">
+          <label class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 hover:border-amber-400 cursor-pointer transition bg-amber-50/30">
+            <input type="checkbox" class="mt-1 w-4 h-4 accent-amber-600 rounded" />
+            <span class="text-sm sm:text-base font-medium text-slate-800">1. Something you <strong>drink</strong> in the morning</span>
+          </label>
+          <label class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 hover:border-amber-400 cursor-pointer transition bg-amber-50/30">
+            <input type="checkbox" class="mt-1 w-4 h-4 accent-amber-600 rounded" />
+            <span class="text-sm sm:text-base font-medium text-slate-800">2. Something you <strong>eat</strong> for breakfast</span>
+          </label>
+          <label class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 hover:border-amber-400 cursor-pointer transition bg-amber-50/30">
+            <input type="checkbox" class="mt-1 w-4 h-4 accent-amber-600 rounded" />
+            <span class="text-sm sm:text-base font-medium text-slate-800">3. Something that comes in a <strong>bottle</strong></span>
+          </label>
+          <label class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 hover:border-amber-400 cursor-pointer transition bg-amber-50/30">
+            <input type="checkbox" class="mt-1 w-4 h-4 accent-amber-600 rounded" />
+            <span class="text-sm sm:text-base font-medium text-slate-800">4. Something you <strong>cannot count</strong> individually</span>
+          </label>
+          <label class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 hover:border-amber-400 cursor-pointer transition bg-amber-50/30 sm:col-span-2">
+            <input type="checkbox" class="mt-1 w-4 h-4 accent-amber-600 rounded" />
+            <span class="text-sm sm:text-base font-medium text-slate-800">5. Something you <strong>can count</strong> individually</span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 1: What's on Your Table? -->
+    <section data-panel="1" class="panel hidden fade-in space-y-6">
+      <div class="bg-white rounded-2xl border border-amber-200/80 shadow-sm p-6 sm:p-8">
+        <span class="inline-block bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full mb-2">WARM-UP CHAT</span>
+        <h2 class="text-2xl font-extrabold text-slate-900">What's on Your Table?</h2>
+        <p class="text-slate-600 mt-1 text-sm sm:text-base">Share your answers in the chat or unmute your mic!</p>
+
+        <div class="grid sm:grid-cols-2 gap-3 mt-5">
+          <div class="p-4 rounded-xl bg-amber-50/60 border border-amber-200/60 text-sm sm:text-base font-medium">☕ What did you have for breakfast today?</div>
+          <div class="p-4 rounded-xl bg-amber-50/60 border border-amber-200/60 text-sm sm:text-base font-medium">🍵 Did you drink any coffee or tea?</div>
+          <div class="p-4 rounded-xl bg-amber-50/60 border border-amber-200/60 text-sm sm:text-base font-medium">🍎 Did you eat any fruit?</div>
+          <div class="p-4 rounded-xl bg-amber-50/60 border border-amber-200/60 text-sm sm:text-base font-medium">🔢 How many items did you have?</div>
+          <div class="p-4 rounded-xl bg-amber-50/60 border border-amber-200/60 text-sm sm:text-base font-medium sm:col-span-2">⭐ What is your favourite food?</div>
+        </div>
+      </div>
+
+      <!-- Interactive Spotlight -->
+      <div class="bg-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-md">
+        <h3 class="text-base sm:text-lg font-bold text-amber-300 mb-2">Spot the Quantity Words!</h3>
+        <p class="text-sm text-slate-300 mb-4">Click the words in the sentence below that tell us <strong>how much</strong> or <strong>how many</strong>:</p>
+        <div class="flex flex-wrap items-center gap-2 text-lg sm:text-xl font-semibold bg-slate-800/80 p-5 rounded-xl border border-slate-700" id="spotlight-sentence">
+          <span>I</span><span>had</span>
+          <button type="button" data-qty="true" class="spot-word px-2.5 py-1 rounded-lg bg-slate-700 hover:bg-slate-600 transition">a cup of</button>
+          <span>tea,</span>
+          <button type="button" data-qty="true" class="spot-word px-2.5 py-1 rounded-lg bg-slate-700 hover:bg-slate-600 transition">two slices of</button>
+          <span>bread,</span><span>and</span>
+          <button type="button" data-qty="true" class="spot-word px-2.5 py-1 rounded-lg bg-slate-700 hover:bg-slate-600 transition">a little</button>
+          <span>butter.</span>
+        </div>
+        <p id="spotlight-feedback" class="text-sm text-amber-300 mt-3 min-h-[20px]"></p>
+      </div>
+    </section>
+
+    <!-- STEP 2: The Virtual Supermarket -->
+    <section data-panel="2" class="panel hidden fade-in space-y-6">
+      <div class="bg-white rounded-2xl border border-amber-200/80 shadow-sm p-6 sm:p-8">
+        <span class="inline-block bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full mb-2">PART 1 • SHOPPING LIST</span>
+        <h2 class="text-2xl font-extrabold text-slate-900">The Virtual Supermarket</h2>
+        <p class="text-slate-600 mt-1 text-sm sm:text-base">We need to shop for our dinner party! Click each item below to sort it into the right basket.</p>
+
+        <!-- Sortable Word Chips -->
+        <div class="mt-4 flex flex-wrap gap-2" id="sort-bank"></div>
+
+        <div class="grid sm:grid-cols-2 gap-4 mt-5">
+          <div class="rounded-xl border-2 border-dashed border-sky-300 bg-sky-50/50 p-4 min-h-[130px]">
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="font-bold text-sky-900">🧺 Countable Nouns</h3>
+              <span class="text-xs text-sky-700 font-medium">1, 2, 3...</span>
+            </div>
+            <div id="basket-countable" class="flex flex-wrap gap-2"></div>
+          </div>
+          <div class="rounded-xl border-2 border-dashed border-amber-300 bg-amber-50/50 p-4 min-h-[130px]">
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="font-bold text-amber-900">🥣 Uncountable Nouns</h3>
+              <span class="text-xs text-amber-700 font-medium">Cannot count 1, 2, 3</span>
+            </div>
+            <div id="basket-uncountable" class="flex flex-wrap gap-2"></div>
+          </div>
+        </div>
+        <div class="flex items-center justify-between mt-3">
+          <p id="sort-feedback" class="text-sm font-medium text-slate-600">Select a food item, then click a basket (or click an item to auto-check).</p>
+          <button type="button" id="sort-reset" class="text-xs font-semibold text-slate-500 hover:text-slate-800 underline">Reset Baskets</button>
+        </div>
+      </div>
+
+      <!-- Quantifiers Reference -->
+      <div class="bg-white rounded-2xl border border-amber-200/80 shadow-sm p-6">
+        <h3 class="text-lg font-bold text-slate-900 mb-3">Quantity Words — How Much Do We Need?</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-sm sm:text-base">
+            <thead>
+              <tr class="bg-slate-900 text-white">
+                <th class="py-2.5 px-4 rounded-tl-lg">Expression</th>
+                <th class="py-2.5 px-4 rounded-tr-lg">Example</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200">
+              <tr><td class="py-2.5 px-4 font-bold text-slate-900">Some</td><td class="py-2.5 px-4 text-slate-700">We need <strong>some</strong> rice.</td></tr>
+              <tr><td class="py-2.5 px-4 font-bold text-slate-900">Any</td><td class="py-2.5 px-4 text-slate-700">Do we have <strong>any</strong> eggs?</td></tr>
+              <tr><td class="py-2.5 px-4 font-bold text-slate-900">A few</td><td class="py-2.5 px-4 text-slate-700">We need <strong>a few</strong> tomatoes.</td></tr>
+              <tr><td class="py-2.5 px-4 font-bold text-slate-900">A little</td><td class="py-2.5 px-4 text-slate-700">We need <strong>a little</strong> sugar.</td></tr>
+              <tr><td class="py-2.5 px-4 font-bold text-slate-900">A lot of</td><td class="py-2.5 px-4 text-slate-700">We need <strong>a lot of</strong> water.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Supermarket Challenge -->
+      <div class="bg-white rounded-2xl border border-amber-200/80 shadow-sm p-6">
+        <h3 class="text-lg font-bold text-slate-900 mb-1">Supermarket Challenge!</h3>
+        <p class="text-sm text-slate-600 mb-4">Choose the best quantity word for each sentence:</p>
+        <div class="space-y-3" id="supermarket-quiz"></div>
+        <div class="mt-4 flex flex-wrap items-center gap-3">
+          <button type="button" id="check-supermarket" class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold transition">Check Answers</button>
+          <span id="supermarket-score" class="text-sm font-bold text-slate-700"></span>
+        </div>
+        <div class="mt-4 p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-sm text-amber-900">
+          <strong>Brainteaser:</strong> Why can't we say <em>"a few milk"</em>?
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 3: Missing Dinner Guest Mystery -->
+    <section data-panel="3" class="panel hidden fade-in space-y-6">
+      <div class="bg-gradient-to-br from-indigo-950 via-slate-900 to-slate-800 text-white rounded-2xl p-6 sm:p-8 shadow-md">
+        <span class="inline-block bg-indigo-500/25 border border-indigo-400/40 text-indigo-200 text-xs font-bold px-3 py-1 rounded-full mb-2">MYSTERY CLUES</span>
+        <h2 class="text-2xl font-extrabold">The Missing Dinner Guest Mystery</h2>
+        <p class="text-slate-300 mt-1 text-sm sm:text-base">Something strange has happened! Someone left a mysterious message about our dinner party:</p>
+        <div class="mt-4 grid sm:grid-cols-3 gap-3">
+          <div class="bg-white/10 border border-white/15 rounded-xl p-4 text-sm font-medium">"<strong>Someone</strong> has eaten the chocolate cake."</div>
+          <div class="bg-white/10 border border-white/15 rounded-xl p-4 text-sm font-medium">"There is <strong>something</strong> in the fridge."</div>
+          <div class="bg-white/10 border border-white/15 rounded-xl p-4 text-sm font-medium">"We need <strong>somewhere</strong> to celebrate."</div>
+        </div>
+      </div>
+
+      <!-- Indefinite Pronouns Chart -->
+      <div class="bg-white rounded-2xl border border-amber-200/80 shadow-sm p-6">
+        <h3 class="text-lg font-bold text-slate-900 mb-3">Indefinite Pronouns</h3>
+        <div class="grid sm:grid-cols-3 gap-3 text-sm">
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+            <div class="font-bold text-slate-900 mb-1">👤 Person</div>
+            <p class="text-slate-700">someone / anyone / no one / everyone</p>
+          </div>
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+            <div class="font-bold text-slate-900 mb-1">📦 Thing</div>
+            <p class="text-slate-700">something / anything / nothing / everything</p>
+          </div>
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+            <div class="font-bold text-slate-900 mb-1">📍 Place</div>
+            <p class="text-slate-700">somewhere / anywhere / nowhere</p>
+          </div>
+        </div>
+        <div class="mt-4 p-3.5 rounded-xl bg-indigo-50 border border-indigo-200 text-sm text-indigo-950">
+          <strong>Quick Tip:</strong> Use <strong>some-</strong> in positive sentences (and polite offers like <em>"Would you like something to drink?"</em>). Use <strong>any-</strong> in questions and negative sentences.
+        </div>
+      </div>
+
+      <!-- Mystery Game -->
+      <div class="bg-white rounded-2xl border border-amber-200/80 shadow-sm p-6">
+        <h3 class="text-lg font-bold text-slate-900 mb-1">Mystery Game — Solve the Clues!</h3>
+        <p class="text-sm text-slate-600 mb-4">Complete each sentence:</p>
+        <div class="space-y-3" id="mystery-quiz"></div>
+        <div class="mt-4 flex flex-wrap items-center gap-3">
+          <button type="button" id="check-mystery" class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold transition">Check Clues</button>
+          <span id="mystery-score" class="text-sm font-bold text-slate-700"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 4: Dinner Menu Detective -->
+    <section data-panel="4" class="panel hidden fade-in space-y-6">
+      <div class="bg-white rounded-2xl border border-amber-200/80 shadow-sm p-6">
+        <span class="inline-block bg-rose-100 text-rose-800 text-xs font-bold px-3 py-1 rounded-full mb-2">MENU DETECTIVE</span>
+        <h2 class="text-2xl font-extrabold text-slate-900">The Dinner Menu Detective</h2>
+        <p class="text-slate-600 mt-1 text-sm sm:text-base mb-4">Fill in <strong>a</strong>, <strong>an</strong>, <strong>the</strong>, or <strong>no article (—)</strong>:</p>
+        <div class="space-y-3" id="article-warmup"></div>
+        <div class="mt-4 flex flex-wrap items-center gap-3">
+          <button type="button" id="check-articles" class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold transition">Check Articles</button>
+          <span id="articles-score" class="text-sm font-bold text-slate-700"></span>
+        </div>
+      </div>
+
+      <!-- Cheat Sheet -->
+      <div class="bg-white rounded-2xl border border-amber-200/80 shadow-sm p-6">
+        <h3 class="text-lg font-bold text-slate-900 mb-3">Article Rules Cheat Sheet</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-sm">
+            <thead>
+              <tr class="bg-slate-900 text-white">
+                <th class="py-2.5 px-4 rounded-tl-lg">Article</th>
+                <th class="py-2.5 px-4">When to use it</th>
+                <th class="py-2.5 px-4 rounded-tr-lg">Example</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200">
+              <tr><td class="py-2.5 px-4 font-bold">A</td><td class="py-2.5 px-4">Before a singular countable noun starting with a consonant sound</td><td class="py-2.5 px-4">a banana</td></tr>
+              <tr><td class="py-2.5 px-4 font-bold">An</td><td class="py-2.5 px-4">Before a singular countable noun starting with a vowel sound</td><td class="py-2.5 px-4">an apple</td></tr>
+              <tr><td class="py-2.5 px-4 font-bold">The</td><td class="py-2.5 px-4">For something specific or already mentioned</td><td class="py-2.5 px-4">the apple I bought</td></tr>
+              <tr><td class="py-2.5 px-4 font-bold">No article (—)</td><td class="py-2.5 px-4">Often with general plural or uncountable nouns</td><td class="py-2.5 px-4">I like apples. / I drink water.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Menu Correction Challenge -->
+      <div class="bg-white rounded-2xl border border-amber-200/80 shadow-sm p-6">
+        <h3 class="text-lg font-bold text-slate-900 mb-1">Menu Correction Challenge!</h3>
+        <p class="text-sm text-slate-600 mb-4">Choose the corrected version of each sentence:</p>
+        <div class="space-y-3" id="menu-correction"></div>
+        <div class="mt-4 flex flex-wrap items-center gap-3">
+          <button type="button" id="check-menu" class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold transition">Check Corrections</button>
+          <span id="menu-score" class="text-sm font-bold text-slate-700"></span>
+        </div>
+        <div class="mt-4 p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-sm text-amber-900">
+          <strong>Brainteaser:</strong> Why do we say <em>"I like chocolate"</em> but <em>"I like the chocolate you bought yesterday"</em>?
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 5: Grammar Rescue! -->
+    <section data-panel="5" class="panel hidden fade-in space-y-6">
+      <div class="bg-white rounded-2xl border border-amber-200/80 shadow-sm p-6 sm:p-8">
+        <span class="inline-block bg-orange-100 text-orange-800 text-xs font-bold px-3 py-1 rounded-full mb-2">10 MINUTES TO PARTY TIME!</span>
+        <h2 class="text-2xl font-extrabold text-slate-900">Grammar Rescue!</h2>
+        <p class="text-slate-600 mt-1 text-sm sm:text-base mb-5">The invitations and menu are full of mistakes — but some sentences are already correct! Pick the right fix (or mark it <strong>Already Correct</strong>):</p>
+        <div class="space-y-3" id="rescue-quiz"></div>
+        <div class="mt-5 flex flex-wrap items-center gap-3">
+          <button type="button" id="check-rescue" class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold transition">Rescue the Party!</button>
+          <span id="rescue-score" class="text-sm font-bold text-slate-700"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 6: Role-Play -->
+    <section data-panel="6" class="panel hidden fade-in space-y-6">
+      <div class="bg-white rounded-2xl border border-amber-200/80 shadow-sm p-6 sm:p-8">
+        <span class="inline-block bg-teal-100 text-teal-800 text-xs font-bold px-3 py-1 rounded-full mb-2">PAIR SPEAKING</span>
+        <h2 class="text-2xl font-extrabold text-slate-900">Can You Come for Dinner?</h2>
+        <p class="text-slate-600 mt-1 text-sm sm:text-base">Prepare for 1 minute with your partner, then act out the conversation without reading!</p>
+
+        <div class="grid sm:grid-cols-2 gap-4 mt-5">
+          <div class="p-5 rounded-2xl bg-sky-50 border border-sky-200">
+            <h3 class="font-extrabold text-sky-950 text-lg mb-2">🏠 Student A — Host</h3>
+            <ul class="space-y-1.5 text-sm text-sky-900 list-disc pl-5">
+              <li>Invite your friend</li>
+              <li>Explain what food you are preparing</li>
+              <li>Ask whether they have any dietary preferences</li>
+              <li>Tell them what ingredients you need</li>
+              <li>Ask them to bring something</li>
+            </ul>
+          </div>
+          <div class="p-5 rounded-2xl bg-amber-50 border border-amber-200">
+            <h3 class="font-extrabold text-amber-950 text-lg mb-2">🎁 Student B — Guest</h3>
+            <ul class="space-y-1.5 text-sm text-amber-900 list-disc pl-5">
+              <li>Accept or refuse the invitation</li>
+              <li>Ask what food is being served</li>
+              <li>Offer to bring something</li>
+              <li>Ask where the dinner party is taking place</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Speaking Checklist -->
+        <div class="mt-5 p-4 rounded-xl bg-slate-900 text-white">
+          <h4 class="text-sm font-bold text-amber-300 mb-2">Speaking Mission Checklist (Tick as you include them!):</h4>
+          <div class="grid sm:grid-cols-2 gap-2 text-sm">
+            <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="accent-amber-400 w-4 h-4" /> At least 2 expressions of quantity</label>
+            <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="accent-amber-400 w-4 h-4" /> At least 2 indefinite pronouns</label>
+            <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="accent-amber-400 w-4 h-4" /> At least 2 correct article examples</label>
+            <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="accent-amber-400 w-4 h-4" /> A natural invitation and response</label>
+          </div>
+        </div>
+
+        <!-- Toggleable Model Dialogue -->
+        <div class="mt-5">
+          <button type="button" id="toggle-dialogue" class="px-4 py-2 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-950 font-semibold text-sm transition">Show Model Dialogue (Inspiration)</button>
+          <div id="model-dialogue" class="hidden mt-3 p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-2 text-sm text-slate-800">
+            <p><strong>A:</strong> Would you like to come over for dinner on Saturday?</p>
+            <p><strong>B:</strong> I'd love to! What are you preparing?</p>
+            <p><strong>A:</strong> I'm making a chicken curry. I need a few vegetables and a little coconut milk.</p>
+            <p><strong>B:</strong> Do you need anything else?</p>
+            <p><strong>A:</strong> Could you bring a dessert?</p>
+            <p><strong>B:</strong> Of course! I'll bring an apple pie.</p>
+            <p><strong>A:</strong> Wonderful! Everyone is invited. The dinner starts at seven.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 7: Exit Quiz -->
+    <section data-panel="7" class="panel hidden fade-in space-y-6">
+      <div class="bg-white rounded-2xl border border-amber-200/80 shadow-sm p-6 sm:p-8">
+        <span class="inline-block bg-purple-100 text-purple-800 text-xs font-bold px-3 py-1 rounded-full mb-2">FINAL CHECK</span>
+        <h2 class="text-2xl font-extrabold text-slate-900">Quick Exit Quiz</h2>
+        <p class="text-slate-600 mt-1 text-sm sm:text-base mb-5">Pick the best answer for all 7 questions, then check your score!</p>
+        <div class="space-y-4" id="exit-quiz"></div>
+        <div class="mt-6 flex flex-wrap items-center gap-4">
+          <button type="button" id="check-exit" class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold transition shadow-sm">Submit Quiz</button>
+          <button type="button" id="reset-exit" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold transition">Try Again</button>
+          <span id="exit-score" class="text-base font-extrabold text-slate-900"></span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer Prev/Next Navigation -->
+  <footer class="border-t border-amber-200/70 bg-white/90 py-4">
+    <div class="max-w-5xl mx-auto px-4 flex items-center justify-between">
+      <button type="button" id="prev-step" class="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 text-sm font-semibold transition disabled:opacity-40" disabled>← Previous</button>
+      <span class="text-xs text-slate-500 font-medium hidden sm:inline">The Great Virtual Dinner Party • Interactive Lesson</span>
+      <button type="button" id="next-step" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-sm font-bold transition">Next →</button>
+    </div>
+  </footer>
+
+  <script>
+    // --- Navigation ---
+    let currentStep = 0;
+    const totalSteps = 8;
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const panels = document.querySelectorAll('.panel');
+    const prevBtn = document.getElementById('prev-step');
+    const nextBtn = document.getElementById('next-step');
+    const progressBadge = document.getElementById('progress-badge');
+
+    function goToStep(step) {
+      currentStep = Math.max(0, Math.min(totalSteps - 1, step));
+      panels.forEach((p, idx) => {
+        p.classList.toggle('hidden', idx !== currentStep);
+      });
+      tabBtns.forEach((b, idx) => {
+        b.classList.toggle('active', idx === currentStep);
+        if (idx === currentStep) {
+          b.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        }
+      });
+      prevBtn.disabled = currentStep === 0;
+      nextBtn.disabled = currentStep === totalSteps - 1;
+      nextBtn.textContent = currentStep === totalSteps - 1 ? 'Done!' : 'Next →';
+      progressBadge.textContent = `Step ${currentStep + 1} of ${totalSteps}`;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => goToStep(Number(btn.dataset.step)));
+    });
+    prevBtn.addEventListener('click', () => goToStep(currentStep - 1));
+    nextBtn.addEventListener('click', () => goToStep(currentStep + 1));
+
+    // --- Step 0: 60s Scavenger Hunt Timer ---
+    let secondsLeft = 60;
+    let timerId = null;
+    const timerEl = document.getElementById('hunt-timer');
+    const startBtn = document.getElementById('timer-start');
+    const resetBtn = document.getElementById('timer-reset');
+
+    function renderTimer() {
+      const m = String(Math.floor(secondsLeft / 60)).padStart(2, '0');
+      const s = String(secondsLeft % 60).padStart(2, '0');
+      timerEl.textContent = `${m}:${s}`;
+      timerEl.classList.toggle('text-rose-400', secondsLeft <= 10 && secondsLeft > 0);
+    }
+
+    startBtn.addEventListener('click', () => {
+      if (timerId) {
+        clearInterval(timerId);
+        timerId = null;
+        startBtn.textContent = 'Resume';
+        return;
+      }
+      if (secondsLeft === 0) secondsLeft = 60;
+      startBtn.textContent = 'Pause';
+      timerId = setInterval(() => {
+        secondsLeft--;
+        renderTimer();
+        if (secondsLeft <= 0) {
+          clearInterval(timerId);
+          timerId = null;
+          startBtn.textContent = 'Start';
+          timerEl.textContent = "Time's up!";
+        }
+      }, 1000);
+    });
+
+    resetBtn.addEventListener('click', () => {
+      clearInterval(timerId);
+      timerId = null;
+      secondsLeft = 60;
+      startBtn.textContent = 'Start';
+      renderTimer();
+    });
+
+    // --- Step 1: Spotlight Quantity Words ---
+    let foundQty = 0;
+    const spotFeedback = document.getElementById('spotlight-feedback');
+    document.querySelectorAll('.spot-word').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (btn.dataset.found) return;
+        btn.dataset.found = 'true';
+        btn.classList.remove('bg-slate-700', 'hover:bg-slate-600');
+        btn.classList.add('bg-amber-400', 'text-slate-950');
+        foundQty++;
+        spotFeedback.textContent = foundQty === 3
+          ? '🎉 Nice! You found all 3 quantity expressions: "a cup of", "two slices of", and "a little".'
+          : `Found ${foundQty} of 3 quantity expressions!`;
+      });
+    });
+
+    // --- Step 2: Supermarket Sort & Quiz ---
+    const foodItems = [
+      { name: 'Eggs', type: 'countable' },
+      { name: 'Rice', type: 'uncountable' },
+      { name: 'Apples', type: 'countable' },
+      { name: 'Milk', type: 'uncountable' },
+      { name: 'Bananas', type: 'countable' },
+      { name: 'Sugar', type: 'uncountable' },
+      { name: 'Tomatoes', type: 'countable' },
+      { name: 'Flour', type: 'uncountable' },
+      { name: 'Sandwiches', type: 'countable' },
+      { name: 'Water', type: 'uncountable' }
+    ];
+    let selectedFood = null;
+    const sortBank = document.getElementById('sort-bank');
+    const basketC = document.getElementById('basket-countable');
+    const basketU = document.getElementById('basket-uncountable');
+    const sortFeedback = document.getElementById('sort-feedback');
+
+    function initSortGame() {
+      sortBank.innerHTML = '';
+      basketC.innerHTML = '';
+      basketU.innerHTML = '';
+      selectedFood = null;
+      sortFeedback.textContent = 'Click an item, then click Countable or Uncountable.';
+      foodItems.forEach((item, idx) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = item.name;
+        btn.dataset.idx = idx;
+        btn.className = 'px-3 py-1.5 rounded-full bg-slate-100 hover:bg-amber-100 border border-slate-300 text-sm font-semibold text-slate-800 transition';
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('#sort-bank button').forEach(b => b.classList.remove('ring-2', 'ring-amber-500', 'bg-amber-100'));
+          btn.classList.add('ring-2', 'ring-amber-500', 'bg-amber-100');
+          selectedFood = { ...item, btn };
+          sortFeedback.textContent = `Selected "${item.name}" — now click a basket below!`;
+        });
+        sortBank.appendChild(btn);
+      });
+    }
+
+    function placeInBasket(targetType, container) {
+      if (!selectedFood) {
+        sortFeedback.textContent = 'Pick a food item above first!';
+        return;
+      }
+      if (selectedFood.type === targetType) {
+        const tag = document.createElement('span');
+        tag.textContent = `✓ ${selectedFood.name}`;
+        tag.className = 'px-3 py-1 rounded-full bg-emerald-100 text-emerald-900 text-xs font-bold border border-emerald-300';
+        container.appendChild(tag);
+        selectedFood.btn.remove();
+        sortFeedback.textContent = `Spot on! ${selectedFood.name} is ${targetType}.`;
+        selectedFood = null;
+      } else {
+        sortFeedback.textContent = `Not quite — can we count "${selectedFood.name}" as 1, 2, 3? Try the other basket!`;
+      }
+    }
+
+    basketC.parentElement.addEventListener('click', () => placeInBasket('countable', basketC));
+    basketU.parentElement.addEventListener('click', () => placeInBasket('uncountable', basketU));
+    document.getElementById('sort-reset').addEventListener('click', initSortGame);
+    initSortGame();
+
+    // Generic Select-Quiz Renderer
+    function renderSelectQuiz(containerId, items) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+      items.forEach((q, idx) => {
+        const row = document.createElement('div');
+        row.className = 'p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2';
+        const label = document.createElement('span');
+        label.className = 'text-sm sm:text-base font-medium text-slate-800';
+        label.textContent = `${idx + 1}. ${q.prompt}`;
+        const right = document.createElement('div');
+        right.className = 'flex items-center gap-2 shrink-0';
+        const sel = document.createElement('select');
+        sel.className = 'px-3 py-1.5 rounded-lg border border-slate-300 bg-white text-sm font-semibold text-slate-800';
+        sel.dataset.q = idx;
+        const defOpt = document.createElement('option');
+        defOpt.value = '';
+        defOpt.textContent = 'Choose...';
+        sel.appendChild(defOpt);
+        q.options.forEach(opt => {
+          const o = document.createElement('option');
+          o.value = opt;
+          o.textContent = opt;
+          sel.appendChild(o);
+        });
+        const badge = document.createElement('span');
+        badge.className = 'text-xs font-bold min-w-[20px]';
+        right.appendChild(sel);
+        right.appendChild(badge);
+        row.appendChild(label);
+        row.appendChild(right);
+        container.appendChild(row);
+      });
+    }
+
+    function gradeSelectQuiz(containerId, items, scoreId) {
+      const selects = document.querySelectorAll(`#${containerId} select`);
+      let correct = 0;
+      selects.forEach((sel, idx) => {
+        const badge = sel.nextElementSibling;
+        const val = sel.value;
+        const accepted = Array.isArray(items[idx].answer) ? items[idx].answer : [items[idx].answer];
+        if (accepted.includes(val)) {
+          correct++;
+          badge.textContent = '✓';
+          badge.className = 'text-sm font-bold text-emerald-600';
+          sel.classList.add('border-emerald-400', 'bg-emerald-50');
+          sel.classList.remove('border-rose-400', 'bg-rose-50');
+        } else {
+          badge.textContent = '✗';
+          badge.className = 'text-sm font-bold text-rose-600';
+          sel.classList.add('border-rose-400', 'bg-rose-50');
+          sel.classList.remove('border-emerald-400', 'bg-emerald-50');
+        }
+      });
+      document.getElementById(scoreId).textContent = `Score: ${correct} / ${items.length}`;
+    }
+
+    const supermarketQuestions = [
+      { prompt: 'We need ______ eggs for the cake.', options: ['a few', 'a little', 'any'], answer: 'a few' },
+      { prompt: "We don't have ______ milk.", options: ['some', 'any', 'a few'], answer: 'any' },
+      { prompt: 'Add ______ sugar to the tea.', options: ['a little', 'a few', 'any'], answer: 'a little' },
+      { prompt: 'We have ______ apples in the basket.', options: ['some', 'a little', 'any'], answer: 'some' },
+      { prompt: 'Do we have ______ rice?', options: ['a few', 'any', 'a little'], answer: 'any' }
+    ];
+    renderSelectQuiz('supermarket-quiz', supermarketQuestions);
+    document.getElementById('check-supermarket').addEventListener('click', () => gradeSelectQuiz('supermarket-quiz', supermarketQuestions, 'supermarket-score'));
+
+    // --- Step 3: Mystery Game ---
+    const mysteryQuestions = [
+      { prompt: 'I don\'t know who is coming. "I think ______ is coming for dinner."', options: ['someone', 'anyone', 'no one'], answer: 'someone' },
+      { prompt: 'There isn\'t a single thing in the fridge. "There is ______ in the fridge."', options: ['something', 'anything', 'nothing'], answer: 'nothing' },
+      { prompt: 'I don\'t mind which place we go to. "We can eat ______."', options: ['somewhere', 'anywhere', 'nowhere'], answer: 'anywhere' },
+      { prompt: 'All the people are invited. "______ is welcome!"', options: ['Someone', 'Everyone', 'Anyone'], answer: 'Everyone' }
+    ];
+    renderSelectQuiz('mystery-quiz', mysteryQuestions);
+    document.getElementById('check-mystery').addEventListener('click', () => gradeSelectQuiz('mystery-quiz', mysteryQuestions, 'mystery-score'));
+
+    // --- Step 4: Articles Warm-up & Menu Correction ---
+    const articleWarmup = [
+      { prompt: 'I ate ______ apple.', options: ['a', 'an', 'the', 'no article (—)'], answer: 'an' },
+      { prompt: 'She bought ______ sandwich.', options: ['a', 'an', 'the', 'no article (—)'], answer: 'a' },
+      { prompt: '______ sandwich was delicious.', options: ['A', 'An', 'The', 'no article (—)'], answer: 'The' },
+      { prompt: 'We need ______ rice.', options: ['a', 'an', 'the', 'no article (—)'], answer: 'no article (—)' },
+      { prompt: 'He drank ______ cup of coffee.', options: ['a', 'an', 'the', 'no article (—)'], answer: 'a' }
+    ];
+    renderSelectQuiz('article-warmup', articleWarmup);
+    document.getElementById('check-articles').addEventListener('click', () => gradeSelectQuiz('article-warmup', articleWarmup, 'articles-score'));
+
+    const menuCorrections = [
+      { prompt: '"I want an banana." → Fix:', options: ['I want a banana.', 'I want the banana.', 'I want banana.'], answer: 'I want a banana.' },
+      { prompt: '"She bought a orange." → Fix:', options: ['She bought an orange.', 'She bought orange.', 'She bought the orange.'], answer: 'She bought an orange.' },
+      { prompt: '"I like the rice." (speaking generally) → Fix:', options: ['I like rice.', 'I like a rice.', 'I like an rice.'], answer: 'I like rice.' },
+      { prompt: '"He ate a egg." → Fix:', options: ['He ate an egg.', 'He ate egg.', 'He ate the egg.'], answer: 'He ate an egg.' },
+      { prompt: '"The milk is good." (in general) → Fix:', options: ['Milk is good.', 'A milk is good.', 'An milk is good.'], answer: 'Milk is good.' }
+    ];
+    renderSelectQuiz('menu-correction', menuCorrections);
+    document.getElementById('check-menu').addEventListener('click', () => gradeSelectQuiz('menu-correction', menuCorrections, 'menu-score'));
+
+    // --- Step 5: Grammar Rescue ---
+    const rescueItems = [
+      { prompt: '"I need a few milk."', options: ['Already correct', 'I need a little milk.', 'I need many milk.'], answer: 'I need a little milk.' },
+      { prompt: '"There isn\'t someone in the kitchen."', options: ['Already correct', "There isn't anyone in the kitchen.", "There isn't no one in the kitchen."], answer: "There isn't anyone in the kitchen." },
+      { prompt: '"She ate a apple."', options: ['Already correct', 'She ate an apple.', 'She ate apple.'], answer: 'She ate an apple.' },
+      { prompt: '"We bought a lot of sugar."', options: ['Already correct', 'We bought a few sugar.', 'We bought an sugar.'], answer: 'Already correct' },
+      { prompt: '"I don\'t have some eggs."', options: ['Already correct', "I don't have any eggs.", "I don't have a little eggs."], answer: "I don't have any eggs." },
+      { prompt: '"Everyone brought something to eat."', options: ['Already correct', 'Anyone brought something to eat.', 'Everyone brought anything to eat.'], answer: 'Already correct' }
+    ];
+    renderSelectQuiz('rescue-quiz', rescueItems);
+    document.getElementById('check-rescue').addEventListener('click', () => gradeSelectQuiz('rescue-quiz', rescueItems, 'rescue-score'));
+
+    // --- Step 6: Model Dialogue Toggle ---
+    const toggleDlgBtn = document.getElementById('toggle-dialogue');
+    const dlgBox = document.getElementById('model-dialogue');
+    toggleDlgBtn.addEventListener('click', () => {
+      const hidden = dlgBox.classList.toggle('hidden');
+      toggleDlgBtn.textContent = hidden ? 'Show Model Dialogue (Inspiration)' : 'Hide Model Dialogue';
+    });
+
+    // --- Step 7: Exit Quiz ---
+    const exitItems = [
+      { q: '1. Which expression is correct?', opts: ['A few milk', 'A little milk', 'Many milk'], ans: 'A little milk' },
+      { q: '2. There isn\'t ______ in the fridge.', opts: ['someone', 'anyone', 'everyone'], ans: 'anyone' },
+      { q: '3. I ate ______ orange.', opts: ['a', 'an', 'the'], ans: 'an' },
+      { q: '4. Which noun is uncountable?', opts: ['Egg', 'Apple', 'Rice'], ans: 'Rice' },
+      { q: '5. ______ is coming to dinner tonight.', opts: ['Someone', 'Anything', 'Nowhere'], ans: 'Someone' },
+      { q: '6. I like ______ coffee.', opts: ['a', 'an', 'no article'], ans: 'no article' },
+      { q: '7. We don\'t have ______ eggs.', opts: ['some', 'any', 'a little'], ans: 'any' }
+    ];
+    const exitContainer = document.getElementById('exit-quiz');
+    const exitAnswers = {};
+
+    function renderExitQuiz() {
+      exitContainer.innerHTML = '';
+      exitItems.forEach((item, idx) => {
+        const card = document.createElement('div');
+        card.className = 'p-4 rounded-xl bg-slate-50 border border-slate-200';
+        const title = document.createElement('div');
+        title.className = 'font-bold text-slate-900 text-sm sm:text-base mb-2.5';
+        title.textContent = item.q;
+        const btnRow = document.createElement('div');
+        btnRow.className = 'flex flex-wrap gap-2';
+        item.opts.forEach(opt => {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.textContent = opt;
+          b.className = 'exit-opt px-3.5 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-amber-50 text-sm font-medium text-slate-800 transition';
+          b.addEventListener('click', () => {
+            exitAnswers[idx] = opt;
+            btnRow.querySelectorAll('button').forEach(x => {
+              x.classList.remove('bg-slate-900', 'text-white', 'border-slate-900');
+              x.classList.add('bg-white', 'text-slate-800', 'border-slate-300');
+            });
+            b.classList.remove('bg-white', 'text-slate-800', 'border-slate-300');
+            b.classList.add('bg-slate-900', 'text-white', 'border-slate-900');
+          });
+          btnRow.appendChild(b);
+        });
+        const fb = document.createElement('div');
+        fb.className = 'exit-fb text-xs font-bold mt-2';
+        card.appendChild(title);
+        card.appendChild(btnRow);
+        card.appendChild(fb);
+        exitContainer.appendChild(card);
+      });
+    }
+
+    renderExitQuiz();
+
+    document.getElementById('check-exit').addEventListener('click', () => {
+      let score = 0;
+      const cards = exitContainer.children;
+      exitItems.forEach((item, idx) => {
+        const fb = cards[idx].querySelector('.exit-fb');
+        if (exitAnswers[idx] === item.ans) {
+          score++;
+          fb.textContent = '✓ Correct!';
+          fb.className = 'exit-fb text-xs font-bold mt-2 text-emerald-600';
+        } else if (!exitAnswers[idx]) {
+          fb.textContent = 'Please select an answer.';
+          fb.className = 'exit-fb text-xs font-bold mt-2 text-amber-600';
+        } else {
+          fb.textContent = `✗ Not quite — try again or check the rule!`;
+          fb.className = 'exit-fb text-xs font-bold mt-2 text-rose-600';
+        }
+      });
+      document.getElementById('exit-score').textContent = `Final Score: ${score} / ${exitItems.length}`;
+      if (score >= 6 && typeof confetti === 'function') {
+        confetti({ particleCount: 70, spread: 60, origin: { y: 0.7 } });
+      }
+    });
+
+    document.getElementById('reset-exit').addEventListener('click', () => {
+      Object.keys(exitAnswers).forEach(k => delete exitAnswers[k]);
+      document.getElementById('exit-score').textContent = '';
+      renderExitQuiz();
+    });
+  </script>
+</body>
+</html>
