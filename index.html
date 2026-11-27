@@ -27,9 +27,82 @@
       from { opacity: 0; transform: translateY(6px); }
       to { opacity: 1; transform: translateY(0); }
     }
+    @keyframes floatSlow {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-16px) rotate(6deg); }
+    }
+    @keyframes floatReverse {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(14px) rotate(-6deg); }
+    }
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.45); }
+      50% { box-shadow: 0 0 0 14px rgba(245, 158, 11, 0); }
+    }
+    @keyframes cardPop {
+      0% { opacity: 0; transform: scale(0.92) translateY(18px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .float-slow { animation: floatSlow 4.5s ease-in-out infinite; }
+    .float-rev { animation: floatReverse 5.2s ease-in-out infinite; }
+    .pulse-glow { animation: pulseGlow 2.4s infinite; }
+    .card-pop { animation: cardPop 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+    #lesson-over-gate {
+      transition: opacity 0.55s cubic-bezier(0.4, 0, 0.2, 1), transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    #lesson-over-gate.gate-exit {
+      opacity: 0;
+      transform: scale(1.04) translateY(-16px);
+      pointer-events: none;
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col">
+
+  <!-- Animated Lesson-Over Landing Gate -->
+  <div id="lesson-over-gate" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gradient-to-br from-slate-950 via-slate-900 to-amber-950 overflow-y-auto">
+    <!-- Floating animated emojis -->
+    <div class="pointer-events-none fixed inset-0 overflow-hidden select-none opacity-25" aria-hidden="true">
+      <span class="float-slow absolute top-[10%] left-[8%] text-5xl">🍽️</span>
+      <span class="float-rev absolute top-[16%] right-[10%] text-5xl">🥂</span>
+      <span class="float-slow absolute bottom-[18%] left-[12%] text-4xl">🍰</span>
+      <span class="float-rev absolute bottom-[14%] right-[14%] text-5xl">🎉</span>
+      <span class="float-slow absolute top-[48%] left-[5%] text-3xl">✨</span>
+      <span class="float-rev absolute top-[45%] right-[6%] text-3xl">🍋</span>
+    </div>
+
+    <div id="gate-main-card" class="card-pop relative max-w-xl w-full rounded-3xl bg-slate-900/85 backdrop-blur-xl border border-amber-400/30 p-7 sm:p-10 text-center text-white shadow-2xl">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 text-xs font-bold tracking-wider uppercase mb-5">
+        <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+        <span>Session Complete</span>
+      </div>
+
+      <div class="text-5xl mb-3 float-slow block" aria-hidden="true">🍽️✨</div>
+      <h2 class="text-2xl sm:text-4xl font-extrabold tracking-tight leading-tight">
+        The Lesson Is Now Over!
+      </h2>
+      <p class="text-slate-300 mt-3 text-sm sm:text-base leading-relaxed">
+        Thanks for joining <strong class="text-amber-300">The Great Virtual Dinner Party</strong>! The live session has wrapped up—you can head back now, or step inside to explore and replay all the interactive activities.
+      </p>
+
+      <div id="gate-actions" class="mt-7 flex flex-col sm:flex-row items-center justify-center gap-3">
+        <button type="button" id="gate-go-back" class="w-full sm:w-auto px-5 py-3 rounded-xl border border-slate-600 bg-slate-800/80 hover:bg-slate-700 text-slate-200 font-semibold text-sm transition transform hover:-translate-y-0.5 active:scale-95">
+          ← Go Back
+        </button>
+        <button type="button" id="gate-enter-site" class="pulse-glow w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-extrabold text-sm transition transform hover:-translate-y-0.5 active:scale-95 shadow-lg">
+          Explore What Was There →
+        </button>
+      </div>
+
+      <div id="gate-goodbye-box" class="hidden mt-6 p-4 rounded-2xl bg-slate-800/90 border border-slate-700 text-sm text-slate-200 fade-in">
+        <p class="font-semibold text-amber-300 mb-1">You're all set! 👋</p>
+        <p class="text-slate-300 mb-3">Feel free to close this tab, or click below if you still want to peek inside the lesson activities.</p>
+        <button type="button" id="gate-peek-anyway" class="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition">
+          Actually, Let Me See the Site →
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- Header -->
   <header class="bg-slate-900 text-white sticky top-0 z-30 shadow-md">
@@ -42,6 +115,7 @@
         </div>
       </div>
       <div class="flex items-center gap-2 text-xs">
+        <button type="button" id="reopen-gate" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-2.5 py-1 rounded-full text-amber-300 font-semibold transition">↺ Intro</button>
         <span class="bg-slate-800 border border-slate-700 px-2.5 py-1 rounded-full text-slate-200 font-medium" id="progress-badge">Step 1 of 8</span>
       </div>
     </div>
@@ -408,6 +482,45 @@
   </footer>
 
   <script>
+    // --- Animated Lesson-Over Landing Gate ---
+    const lessonGate = document.getElementById('lesson-over-gate');
+    const gateEnterBtn = document.getElementById('gate-enter-site');
+    const gateBackBtn = document.getElementById('gate-go-back');
+    const gateGoodbyeBox = document.getElementById('gate-goodbye-box');
+    const gateActions = document.getElementById('gate-actions');
+    const gatePeekBtn = document.getElementById('gate-peek-anyway');
+    const reopenGateBtn = document.getElementById('reopen-gate');
+
+    function enterLessonSite() {
+      if (typeof confetti === 'function') {
+        confetti({ particleCount: 55, spread: 65, origin: { y: 0.6 } });
+      }
+      lessonGate.classList.add('gate-exit');
+      setTimeout(() => {
+        lessonGate.classList.add('hidden');
+      }, 520);
+    }
+
+    gateEnterBtn.addEventListener('click', enterLessonSite);
+    gatePeekBtn.addEventListener('click', enterLessonSite);
+
+    gateBackBtn.addEventListener('click', () => {
+      if (window.history.length > 1) {
+        window.history.back();
+      }
+      gateActions.classList.add('hidden');
+      gateGoodbyeBox.classList.remove('hidden');
+    });
+
+    reopenGateBtn.addEventListener('click', () => {
+      gateActions.classList.remove('hidden');
+      gateGoodbyeBox.classList.add('hidden');
+      lessonGate.classList.remove('hidden');
+      requestAnimationFrame(() => {
+        lessonGate.classList.remove('gate-exit');
+      });
+    });
+
     // --- Navigation ---
     let currentStep = 0;
     const totalSteps = 8;
